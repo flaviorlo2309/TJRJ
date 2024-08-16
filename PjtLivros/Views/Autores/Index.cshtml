@@ -1,0 +1,94 @@
+﻿@model PjtLivros.Models.Autor
+
+@{
+    ViewData["Title"] = "Cadastro de Autor";
+}
+<h1>@ViewData["Title"]</h1>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+
+<script type="text/javascript" charset="utf-8">
+
+    $(document).ready(function () {
+
+        $("#btngravar").click(function (e) {
+
+            e.preventDefault();
+
+            // $("select option:Autores").each(function () {
+            //     selectedValues += $(this).val() + ",";
+            // });
+            var nome = $("#Nome").val();
+
+
+            $('#formCadastro').find('select, textarea, input').each(function () {
+
+                if (!$(this).val()) {
+                    alert("O campo " + $(this).prop("id") + " dever ser preenchido");
+                    $(this).focus();
+                    return false;
+                }
+            });
+
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("GravarDados", "Autores")',
+                dataType: 'Json',
+                data: { dados: nome },
+                cache: false,
+                async: true,
+                success: function (result) {
+                    if (result == true) {
+                        alert("Dados gravados com sucesso!!!");
+                        $("#Nome").val("");
+                        
+                    }
+                    else {
+                        alert("Não foi possível confirmar gravação");
+                    }
+                }
+
+            });
+
+
+        })
+    })
+
+</script>
+
+@Html.ValidationSummary(true)
+<form id="formCadastro">
+    <div class=”editor-label”>@Html.LabelFor(x => x.Nome)</div>
+    <div class=”editor-field”>
+        @Html.EditorFor(x => x.Nome, new { @class = "form-control", required = "required" }) @Html.ValidationMessageFor(x => x.Nome)
+    </div>
+    </br>
+    <input type="submit" name="btngravar" id="btngravar" value="Gravar" />
+
+
+    <table id="tbLivros" class="table" style="margin-top:20px">
+        <thead class="table-info">
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Nome</th>               
+                <th scope="col"> </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in ViewBag.Autores)
+            {
+                <tr>
+                    <td>@item.CodAu</td>
+                    <td>@item.Nome</td>                   
+                    
+                </tr>
+            }
+        </tbody>
+    </table>
+
+</form>
+
+

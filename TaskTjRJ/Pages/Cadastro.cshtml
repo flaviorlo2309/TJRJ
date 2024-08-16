@@ -1,0 +1,30 @@
+﻿@page
+@model TaskTjRJ.Model.Livro
+@{
+    ViewData["Title"] = "Cadastro de Livros";
+}
+<h1>@ViewData["Title"]</h1>
+
+@using (Html.BeginForm())
+{
+    @Html.ValidationSummary(true)
+   <form role="form" class="form-inline">  
+        <div class=”editor-label”>@Html.LabelFor(x => x.Titulo)</div>
+        <div class=”editor-field”>@Html.EditorFor(x => x.Titulo) @Html.ValidationMessageFor(x => x.Titulo)</div>
+
+        <div class=”editor-label”>@Html.LabelFor(x => x.Editora)</div>
+        <div class=”editor-field”>@Html.EditorFor(x => x.Editora) @Html.ValidationMessageFor(x => x.Editora)</div>
+
+        <div class=”editor-label”>@Html.LabelFor(x => x.Edicao)</div>
+        <div class=”editor-field”>@Html.EditorFor(x => x.Edicao) @Html.ValidationMessageFor(x => x.Edicao)</div>
+
+        <div class=”editor-label”>@Html.LabelFor(x => x.AnoPublicacao)</div>
+        <div class=”editor-field”>@Html.EditorFor(x => x.AnoPublicacao) @Html.ValidationMessageFor(x => x.AnoPublicacao)</div>
+
+  </form>
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+            <input type="submit" value="Gravar" class="btn btn-default" />
+        </div>
+    </div>
+}

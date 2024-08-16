@@ -1,0 +1,12 @@
+C:\Projetos\.Net\TJRJ\TaskTjRJ\Service\bin\Debug\net7.0\Service.deps.json
+C:\Projetos\.Net\TJRJ\TaskTjRJ\Service\bin\Debug\net7.0\Service.dll
+C:\Projetos\.Net\TJRJ\TaskTjRJ\Service\bin\Debug\net7.0\Service.pdb
+C:\Projetos\.Net\TJRJ\TaskTjRJ\Service\obj\Debug\net7.0\Service.csproj.AssemblyReference.cache
+C:\Projetos\.Net\TJRJ\TaskTjRJ\Service\obj\Debug\net7.0\Service.GeneratedMSBuildEditorConfig.editorconfig
+C:\Projetos\.Net\TJRJ\TaskTjRJ\Service\obj\Debug\net7.0\Service.AssemblyInfoInputs.cache
+C:\Projetos\.Net\TJRJ\TaskTjRJ\Service\obj\Debug\net7.0\Service.AssemblyInfo.cs
+C:\Projetos\.Net\TJRJ\TaskTjRJ\Service\obj\Debug\net7.0\Service.csproj.CoreCompileInputs.cache
+C:\Projetos\.Net\TJRJ\TaskTjRJ\Service\obj\Debug\net7.0\Service.dll
+C:\Projetos\.Net\TJRJ\TaskTjRJ\Service\obj\Debug\net7.0\refint\Service.dll
+C:\Projetos\.Net\TJRJ\TaskTjRJ\Service\obj\Debug\net7.0\Service.pdb
+C:\Projetos\.Net\TJRJ\TaskTjRJ\Service\obj\Debug\net7.0\ref\Service.dll

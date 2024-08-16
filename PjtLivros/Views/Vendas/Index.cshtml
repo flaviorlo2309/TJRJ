@@ -1,0 +1,209 @@
+﻿@{  
+    ViewData["Title"] = "Precificação do Livro por Tipo de Venda";
+   // var lstDados = (List<PjtLivros.Models.Livro>)ViewBag.Livros;
+}
+<h1>@ViewData["Title"]</h1>
+<br />
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script type="text/javascript" charset="utf-8">
+    $(document).ready(function () {
+        // $('.datepicker').datepicker({
+        //     format: 'dd/mm/yyyy',
+        //     language: 'pt-BR'
+        // });
+
+       
+      
+
+        $('#vlTpVenda').keyup(function (e) {
+            var val = $(this).val();
+            val = val.replace(/[^0-9]/g, '');
+            if (val.length >= 2)
+                val = '$' + val.substring(0, 2) + ',' + val.substring(2);
+            if (val.length >= 6)
+                val = val.substring(0, 7) + val.substring(7);
+            if (val.length > 7)
+                val = val.substring(0, 7);
+            $(this).val(val);
+        });
+
+        $("#btngravar").click(function (e) {
+          
+            e.preventDefault();
+
+            var cdLivro=$("#ddlLivros").val();
+            $("#tab_tpvenda tbody tr").html(html);
+
+            if (cdLivro != "") {
+               
+
+                $("#tab_tpvenda tbody tr").each(function () {
+                    if ($(this).find("td:first").length > 0) {
+
+                        var codLivro = $("#ddlLivros").val();
+                        var codigo = $(this).find("td:eq(0)").html();
+                        var valor = $(this).find("td:eq(2) input[type='text']").val();
+                       
+                        var reg = {
+                            Id : 0,
+                            Codl: codLivro,
+                            TpId: codigo,
+                            Valor: valor.replace(",", "."),
+                            Titulo: "",
+                            TpVendaDesc: "",
+                        };
+
+
+
+                        $.ajax({
+                            type: 'POST',
+                            url: '@Url.Action("AddDadosLivroTpVenda", "Vendas")',
+                            dataType: 'Json',
+                            data: { dados: JSON.stringify(reg) },
+                            cache: false,
+                            async: true,
+                            success: function (result) {
+                                if (result == true) {
+                                    response = true;
+                                }
+                                else {
+                                    response = false;
+                                }
+                            }
+
+                        });
+
+                    };
+
+                });
+
+                alert("Dados gravados com sucesso!!!");
+            }
+            else{
+
+                alert("Favor escolher um Tìtulo ");
+            }
+        
+
+         
+          
+        });
+
+        $("#btnChamar").click(function (e) {
+              e.preventDefault();
+            var cdLivro = $("#ddlLivros").val();
+
+           
+            if (cdLivro != "")
+            {
+                
+                 window.location.href = "https://localhost:7032/Vendas?codigo=" + cdLivro;
+                // $.ajax({
+                //     type: 'GET',
+                //     url: '@Url.Action("Index", "Vendas")',
+                //     dataType: 'Json',
+                //     data: { codigo: cdLivro },
+                //     cache: false,
+                //     async: true,
+                //     success: function (result) {
+                       
+                //     }
+
+                // });
+            }
+            else
+            {
+                alert("Favor escolher o Título!!!");
+            }
+
+        });
+    });
+
+</script>
+<form class="form-control">
+
+    
+<div class="col-2">
+        <label for="exampleFormControlInput1" class="form-label">Títulos</label>
+     @Html.DropDownList("ddlLivros", new SelectList(ViewBag.Livros, "Codl", "Titulo"),"Selecione")
+</div>
+ 
+<br />
+    <div class="container">
+        <div class="row clearfix">
+            <div class="col-md-6 column">
+                <table class="table table-bordered table-hover" id="tab_tpvenda">
+                    <thead>
+                        <tr>
+                            <th class="text-center">
+                                #
+                            </th>
+                            <th class="text-center">
+                                Tipo Venda
+                            </th>
+                            <th class="text-center">
+                                Valor
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in @ViewBag.tpvenda)
+                        {
+                            <tr>
+                                <td class="col-1">@item.Id</td>
+                                <td class="col-7">@item.Descricao</td>
+                                <td class="col-4">
+                                    <input type="text" name="vlTpVenda" placeholder='Valor' class="form-control" style="text-align:right"/>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-md-6 column">
+                <div>
+                    <input type="button" class="btn btn-primary col-12" id="btnChamar" value="Buscar" />
+                </div>
+                <table id="tbLivros" class="table">
+                    <thead class="table-info">
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Livro</th>
+                            <th scope="col">Tp Venda</th>
+                            <th scope="col">Valor</th>
+                        </tr>
+                    </thead>
+                    <tbody>  
+                        @if(@ViewBag.tpvendaLivro != null)
+                        {
+                             @foreach (var item in @ViewBag.tpvendaLivro)
+                            {
+
+                                <tr>
+                                    <td class="col-1">@item.Id</td>
+                                    <td class="col-7">@item.Titulo</td>
+                                    <td class="col-7">@item.TpVendaDesc</td>
+                                     <td class="col-7">@item.Valor</td>
+                                   
+                                </tr>
+                            }
+                        }
+                       
+                        
+                        
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="col-12">
+        <input type="button" class="btn btn-primary" name="btngravar" id="btngravar" value="Gravar" />
+    </div>
+  
+</form>
+

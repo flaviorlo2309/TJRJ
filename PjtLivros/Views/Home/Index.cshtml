@@ -1,0 +1,266 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+
+
+}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+<link href="~/css/loading.css" rel="stylesheet" />
+<script type="text/javascript" charset="utf-8">
+
+$(document).ready(function () 
+{    
+
+        $('#Edicao,#AnoPublicacao').keyup(function (event) {
+            $(this).val(function (index, value) {
+                return value.replace(/\D/g, "");
+            });
+        });
+
+        $('#Valor').keyup(function (event) {
+            $(this).val(function (index, value) {
+                var valorAlterado = value;
+                valorAlterado = valorAlterado.replace(/\D/g, ""); // Remove todos os não dígitos
+                valorAlterado = valorAlterado.replace(/(\d+)(\d{2})$/, "$1,$2"); // Adiciona a parte de centavos
+                valorAlterado = valorAlterado.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1."); // Adiciona pontos a cada três dígitos
+                return "R$" + valorAlterado;
+                //return 'R$' + value.replace(/\D/g, "").replace(/(^[0-9,]*),(\d{1,2}$)/igm, "$1.$2");
+            });
+        });
+
+        //
+    $("#tbLivros").on('click', '.btnExcluir', function (e) {
+        e.preventDefault();
+
+        var checkstr = confirm('Deseja realmente excluir esse Livro?');
+
+        if (checkstr == true) {
+                var nRow = $(this).closest("tr");
+                var codigo = nRow.find("td:eq(0)").text().trim();
+
+             $.ajax({
+                type: 'DELETE',
+                url: '@Url.Action("ExcluirLivro", "Home")',
+                dataType: 'Json',
+                data: { dados: codigo },
+                cache: false,
+                async: true,
+                success: function (result) {
+                    if (result == true) {
+                            alert("Dados excluídos com sucesso!!");
+                    }
+                    else {
+                        alert("Não foi possível confirmar a exclusão, existe pelo Menos 1 Autor atribuído a este título");
+                    }
+                }
+
+            });
+
+
+        };
+    });
+
+        $("#tbLivros").on('click', '.btnResult', function (e) {
+            e.preventDefault();
+            //$("#modal-acao_confirmacao").modal('toggle');
+            var nRow = $(this).closest("tr");
+            var codigo  = nRow.find("td:eq(0)").text().trim();
+            var titulo = nRow.find("td:eq(1)").text().trim();
+            var autores = nRow.find("td:eq(2)").text().trim();
+            var assunto = nRow.find("td:eq(3)").text().trim();
+            var editora = nRow.find("td:eq(4)").text().trim();
+            var edicao = nRow.find("td:eq(5)").text().trim();
+            var ano = nRow.find("td:eq(6)").text().trim();
+            var custo = nRow.find("td:eq(7)").text().trim();
+
+            $("#Codigo").val(codigo);
+            $("#Titulo").val(titulo);
+            $("#Autores").val(autores);
+            $("#Assunto").val(assunto);
+            $("#Editora").val(editora);
+            $("#Edicao").val(edicao);
+            $("#AnoPublicacao").val(ano);
+            $("#Valor").val(custo);
+
+        });
+
+
+        $("#save").click(function (e) {
+            e.preventDefault();
+
+            var titulo = $("#Titulo").val();
+            var codigo = $("#Codigo").val();
+            var autores = $("#Autores").val();
+            var assunto = $("#Assunto").val();
+            var editora = $("#Editora").val();
+            var edicao = $("#Edicao").val();
+            var ano = $("#AnoPublicacao").val();
+            var custo = $("#Valor").val();
+
+            var reg = { Codl:codigo, Titulo: titulo, Assunto: assunto, Editora: editora, Edicao: edicao, AnoPublicacao: ano, Autores: autores, Valor: parseFloat(custo.replace("R$",""), 10).toFixed(2) };
+
+
+            $.ajax({
+                type: 'PUT',
+                url: '@Url.Action("AlterarDados", "Home")',
+                dataType: 'Json',
+                data: { dados: JSON.stringify(reg) },
+                cache: false,
+                async: true,
+                success: function (result) {
+                    if (result == true) {
+                        alert("Dados alterados com sucesso");
+                        window.location.href = "/Home";
+                    }
+                    else {
+                        alert("Não foi possível confirmar gravação");
+                    }
+                }
+
+            });
+        });
+
+    $("#Report").click(function (e) {
+        e.preventDefault();
+
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("GerarRelatorio", "Home")',
+                dataType: 'Json',
+                //data: { dados: JSON.stringify(reg) },
+                cache: false,
+                async: true,
+                success: function (result) {                                         
+                    var win = window.open(result, '_blank');
+                    win.focus();
+
+                }
+
+            });
+
+    });
+
+});
+
+</script>
+
+
+@using PjtLivros.Models;
+
+<div class="text-center">
+    <h1 class="display-4">BASIS - TJRJ</h1>
+    <p>Quer saber mais sobre nossos serviços <a href="https://www.basis.com.br/">https://www.basis.com.br/</a>.</p>
+</div>
+
+ <div class="modal fade" id="modal-mensagem">
+<div class="modal-dialog">
+    <div class="modal-content" style="background-color:#4682B4">
+        <div class="modal-header">
+            <h4 style="color:#fff" class="modal-title">aguardem.......</h4>
+        </div>
+        <div class="loader"> </div>
+    </div>
+</div>
+</div>
+<div class="col-12 row">
+    
+        <button id="Report" class="btn btn-info" style="color:#fff;font-weight:bold;font-size:20px">Gerar Relatório</button>
+    
+    <br />
+    <br />
+    <table id="tbLivros" class="table" style="margin-top:20px">
+        <thead class="table-info">
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Título</th>
+                <th scope="col">Autores</th>
+                <th scope="col">Assunto</th>
+                <th scope="col">Editora</th>
+                <th scope="col">Edição</th>
+                <th scope="col">Ano</th>
+                <th scope="col">Valor</th> 
+                <th scope="col"> </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                <td>@item.Codl</td>
+                <td>@item.Titulo</td>
+                <td>@item.Autores</td>
+                <td>@item.Assunto</td>
+                <td>@item.Editora</td>
+                <td>@item.Edicao</td>
+                <td>@item.AnoPublicacao</td>
+                <td>@item.Valor</td> 
+                <td>
+                        <a class="btn btn-warning btn-sm btnResult" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                        <i class="fas fa-pencil-alt">
+                        </i>
+                        Editar
+                    </a>
+                        <a class="btn btn-danger btn-sm btnExcluir" href="#">
+                        <i class="fas fa-trash">
+                        </i>
+                        Excluir
+                    </a>
+                </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+</div>
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Edição do Livro</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <div class=”col-1”>
+                    <label>Código</label>
+                    <input type="text" class="col-1" id="Codigo" readonly>
+                </div>
+                <div class=”form-group col-5”>
+                    <label>Título</label>
+                    <input type="text" class="form-control" id="Titulo" required>
+                </div>
+                <div class=”form-group col-5”>
+                    <label>Editora</label>
+                    <input type="text" class="form-control" id="Editora" required>
+                </div>
+                <div class=”form-group col-5”>
+                    <label>Autores</label>
+                    <input type="text" class="form-control" id="Autores" required>
+                </div>
+               
+                <div class=”form-group row” style="margin-top:20px">
+                    <label>Edição</label>
+                    <input type="text" class="col-1" id="Edicao" maxlength="4" required>
+                </div>
+                <div class=”form-group row” style="margin-top:20px">
+                    <label>Ano Publicação</label>
+                    <input type="text" class="col-2" id="AnoPublicacao" maxlength="4" required>
+                </div>
+                <div class=”form-group col-5”>
+                    <label>Assunto</label>
+                    <input type="text" class="form-control" id="Assunto" required>
+                </div>
+                <div class=”form-group row” style="margin-top:20px">
+                    <label>Valor</label>
+                    <input type="text" class="col-3" style="text-align:right" id="Valor" required>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" id="save" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>

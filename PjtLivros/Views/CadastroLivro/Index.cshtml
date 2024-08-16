@@ -1,0 +1,134 @@
+﻿@model PjtLivros.Models.Livro
+
+@{
+    ViewData["Title"] = "Cadastro de Livros";
+}
+<h1>@ViewData["Title"]</h1>
+
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="~/js/site.js"></script>
+<script type="text/javascript" charset="utf-8">
+
+    $(document).ready(function () {
+
+        $('#Valor').keyup(function (event) {
+            $(this).val(function (index, value) {
+                var valorAlterado = value;
+                valorAlterado = valorAlterado.replace(/\D/g, ""); // Remove todos os não dígitos
+                valorAlterado = valorAlterado.replace(/(\d+)(\d{2})$/, "$1,$2"); // Adiciona a parte de centavos
+                valorAlterado = valorAlterado.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1."); // Adiciona pontos a cada três dígitos
+                return "R$" + valorAlterado;
+                //return 'R$' + value.replace(/\D/g, "").replace(/(^[0-9,]*),(\d{1,2}$)/igm, "$1.$2");
+            });
+        });
+
+        $('#Edicao,#AnoPublicacao').keyup(function (event) {
+            $(this).val(function (index, value) {              
+                return value.replace(/\D/g, "");
+            });
+        });
+
+        $("#btngravar").click(function(e){
+
+            e.preventDefault();          
+           
+            var autores = $("select#Autores").val();
+          
+            var iAutors = "x";
+
+            
+            for (i = 0; i < autores.length; ++i) {
+                iAutors = iAutors.replace("x","") + autores[i] + ",";
+            }
+
+            var jsonString = JSON.stringify(autores);
+            var titulo = $("#Titulo").val();
+            var assunto = $("#Assunto").val();
+            var editora = $("#Editora").val();
+            var edicao = $("#Edicao").val();
+            var anoPublicacao = $("#AnoPublicacao").val();
+            var valor = $("#Valor").val();
+
+            var registros = [];
+
+      
+            $('#formCadastro').find('select, textarea, input').each(function () {
+
+                if(!$(this).val()){
+                    alert("O campo " + $(this).prop("id") + " dever ser preenchido");
+                    $(this).focus();
+                    return false;
+                }
+
+            });
+
+            //registros.push( "Titulo": Titulo, "Assunto": Assunto, "Editora": Editora, "Edicao": Edicao, "Ano": AnoPublicacao, "Autores": Autores);
+           // registros.push({ Titulo, Assunto, Editora, Edicao, AnoPublicacao, autores });
+            var reg = { Titulo: titulo, Assunto: assunto, Editora: editora, Edicao: edicao, AnoPublicacao: anoPublicacao, Autores: iAutors, Valor: parseFloat(valor, 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,") };
+
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("GravarDados", "CadastroLivro")',
+                dataType: 'Json',
+                data: { dados: JSON.stringify(reg) },
+                cache: false,
+                async: true,
+                success: function (result) {
+                    if (result == true) {
+                        alert("Dados gravados com sucesso!!!");
+                        $("#Titulo").val("");
+                        $("#Assunto").val("");
+                        $("#Editora").val("");
+                        $("#Edicao").val("");
+                        $("#AnoPublicacao").val("");
+
+                    }
+                    else {
+                        alert("Não foi possível confirmar gravação");
+                    }
+                }
+
+            });
+
+        })
+    })
+
+</script>
+
+
+   
+    @Html.ValidationSummary(true)
+   <form id="formCadastro">
+        <div class=”editor-label”>@Html.LabelFor(x => x.Titulo)</div>
+        <div class=”editor-field”>
+        @Html.EditorFor(x => x.Titulo, new { @class = "form-control", required = "required" }) @Html.ValidationMessageFor(x => x.Titulo)
+        </div>
+
+        <div class=”editor-label”>@Html.LabelFor(x => x.Editora)</div>
+        <div class=”editor-field”>
+            @Html.EditorFor(x => x.Editora) @Html.ValidationMessageFor(x => x.Editora)            
+        </div>
+
+        <div class=”editor-label”>@Html.LabelFor(x => x.Edicao)</div>
+        <div class=”editor-field”>@Html.EditorFor(x => x.Edicao ) </div>
+
+
+        <div class=”editor-label”>@Html.LabelFor(x => x.AnoPublicacao)</div>
+        <div class=”editor-field”>@Html.EditorFor(x => x.AnoPublicacao) @Html.ValidationMessageFor(x => x.AnoPublicacao)</div>
+
+        <div class=”editor-label”>@Html.LabelFor(x => x.Assunto)</div>
+        <div class=”editor-field”>@Html.EditorFor(x => x.Assunto) @Html.ValidationMessageFor(x => x.Assunto)</div>
+      
+        <div class=”editor-label”>@Html.LabelFor(x => x.Autores)</div>
+        @Html.DropDownList("Autores", new MultiSelectList(ViewBag.Autor, "CodAu", "Nome"), String.Empty, new { @class = "list-group;list-group-item", multiple = "multiple", style = "width:200px;boder-radius:5px; border: 1px solid blue;" })
+        
+        <br />
+
+         <input type="submit" name="btngravar" id="btngravar" value="Gravar" />
+
+        
+    </form>
+   
+   
+

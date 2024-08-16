@@ -1,0 +1,6 @@
+﻿namespace PjtLivros.Report
+{
+    public class Report
+    {
+    }
+}
